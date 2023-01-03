@@ -1,4 +1,3 @@
-# pylint: disable-next=import-error
 import pytest
 from poller import Participant
 
