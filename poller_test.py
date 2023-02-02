@@ -1,6 +1,7 @@
 from poller import *
 import randopoll
 
+#Tests Participants Class
 def test_participant():
     participant = Participant("Isabelle",5,3,1,1)
     print("this: ", participant)
@@ -8,6 +9,7 @@ def test_participant():
 
 print(test_participant())
 
+#Tests Poller Class
 def test_poller():
     pass
 

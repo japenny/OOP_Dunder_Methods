@@ -8,8 +8,8 @@ parser.add_argument("/home/jspenny/hw1/participants.csv")
 
 args = parser.parse_args()
 
-print(args)
-
+#Main Function to call on participants using Poller Class
+#And change participant data
 def main():
     with Poller("/home/jspenny/hw1/participants.csv") as poller:
         for participant in poller:
