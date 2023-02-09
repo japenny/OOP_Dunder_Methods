@@ -78,7 +78,7 @@ def test_poller_enter_exit():
     #                 break
     #             print("Unknown response")
 
-    assert mocker.result_to_write == 1 #mocker.result_to_write == 1 #"Isabelle,6,3,2,1\nBobby,5,1,3,1\nCharles,5,2,2,1"
+    assert mocker.result_to_write == ["Isabelle,6,3,2,1\nBobby,5,1,3,1\nCharles,5,2,2,1"]
     
 test_poller_enter_exit()
 

@@ -58,17 +58,18 @@ class Poller:
 
         """Reads file and records data to self.data and self.order"""
         self.file_rw = self.opener(self.file_name, 'r+')
-        # with self.opener(self.file_name, 'r') as read:
-        csv_read = list(csv.reader(self.file_rw))
-        for line in csv_read:
-            if len(line) != 5:
-                raise ValueError('Incorrect Format, Expected: name, #polled, #correct, #attempted, #excused')
-                    
-            part = Participant(line[0], line[1], line[2], line[3], line[4])
 
-            self.rand_data.append( [part._poll, part._name] )
-            self.order.update( {part._name : part} )
-            self.len += 1
+        with self.opener(self.file_name, 'r') as read:
+            csv_read = csv.reader(read)
+            for line in csv_read:
+                if len(line) != 5:
+                    raise ValueError('Incorrect Format, Expected: name, #polled, #correct, #attempted, #excused')
+                        
+                part = Participant(line[0], line[1], line[2], line[3], line[4])
+
+                self.rand_data.append( [part._poll, part._name] )
+                self.order.update( {part._name : part} )
+                self.len += 1
 
         """Checks if theres no participants data"""
         if self.len < 1:
@@ -139,9 +140,10 @@ class Poller:
         """Overwrite file"""
         # self.file_rw.seek(0)
         # file_w = self.opener(self.file_name, 'w')
-        for i in self.order.values():
-            self.file_rw.write( str(i) + '\n' )
-        self.file_rw.close()
+        with self.opener(self.file_name, 'w'):
+            for i in self.order.values():
+                self.file_rw.write( str(i) + '\n' )
+        # self.file_rw.close()
 
         """Print total Participants polled"""
         print(f"Total Participants Polled: {self.total}")
