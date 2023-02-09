@@ -30,10 +30,27 @@ def test_participant_increment(name, poll, corr, att, exc, expected):
 """
 Testing Poller class
 """
+def mock_open(input_list):
+    class Opener:
+        input = input_list
+        result_to_write = []
 
-# How do i test the poller class, 
-# as the way i see it, 
-# i need to pass it a file inorder to run
+        def __init__(self, file_name, mode=""):
+            pass
+
+        def __iter__(self):
+            return iter(Opener.input)
+            
+        def __enter__(self):
+            return self
+        
+        def write(self, text):
+            Opener.result_to_write.append(text)
+            
+        def __exit__(self, exc_type, exc_value, exc_traceback):
+            pass
+
+    return Opener
 
 @pytest.mark.parametrize(
     ['file_name', 'expected'],
