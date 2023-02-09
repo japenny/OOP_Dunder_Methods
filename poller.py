@@ -2,151 +2,143 @@ import csv
 from ast import Expr
 from random import shuffle
 
-#Records a participant's data
+"""Records a participant's data"""
 class Participant:
-    # Constructor method to create object
-    def __init__(self, name, poll = 0, corr = 0, att = 0, exc = 0, miss = 0):
-        self.name = name
-        self.poll = poll
-        self.corr = corr
-        self.att  = att
-        self.exc  = exc
+    """Constructor method to create object"""
+    def __init__(self, name, poll, corr, att, exc):
+        self._name = name
+        self._poll = int(poll)
+        self._correct = int(corr)
+        self._attempted  = int(att)
+        self._excused  = int(exc)
 
-    # Increments polled each time the other methods are called
+    """Increments polled each time the other methods are called"""
     def _polled(self):
-        self.poll += 1
+        self._poll += 1
 
-    # Increments correct (corr) by 1
+    """Increments correct (corr) by 1"""
     def correct(self):
         self._polled()
-        self.corr += 1
+        self._correct += 1
     
-    # Increments attempted (att) by 1
+    """Increments attempted (att) by 1"""
     def attempted(self):
         self._polled()
-        self.att += 1
+        self._attempted += 1
     
-    # Increments excused (exc) by 1
+    """Increments excused (exc) by 1"""
     def excused(self):
         self._polled()
-        self.exc += 1
+        self._excused += 1
     
-    # Increments missing (miss) by 1
+    """Increments missing (miss) by 1"""
     def missing(self):
         self._polled()
     
-    # Represents participant as string
+    """Formats participant as string"""
     def __str__(self):
-        return (f"{self.name},{self.poll},{self.corr},{self.att},{self.exc}")
+        return (f"{self._name},{self._poll},{self._correct},{self._attempted},{self._excused}")
 
-#Main class to open and operate on participants data
+
+"""Main class to open and operate on participants data"""
 class Poller:
-    #Initializes basic variables
+    """Initializes basic variables"""
     def __init__(self, file_name):
         self.file_name = file_name
+        self.curr_idx = 0
         self.total = 0
         self.len = 0
-        self.i = 0
+        self.loop = True
     
-    #Enters and records file data
+    """Enters and records file data"""
     def __enter__ (self):
-        print("File Entered")
-        #Opens the file
-        try:
-            self.file = open(self.file_name, 'r+')
-            read_obj = csv.reader(self.file)
-        except:
-            raise Exception("Unable to access file!")
-            
-        header = next(read_obj)
-        #Checks if header has correct length
-        if len(header) != 5:
-            raise ValueError('Empty Data or Incorrect Format Length, Expected: name, #polled, #correct, #attempted, #excused')
-
-        format = ['Name ', 'Polled', 'Correct', 'Attempted', 'Excused']
-        #checks if header has the correct format
-        for i in range(5):
-            if format[i] != header[i]:
-                raise ValueError('Incorrect Format, Expected: name, #polled, #correct, #attempted, #excused')
-        
-        self.data = []
+        self.rand_data = []
         self.order = dict()
-        #Reads csv file and records data to self.data and self.order
-        for line in read_obj:
-            part = Participant(line[0],
-                               int(line[1]), int(line[2]),
-                               int(line[3]), int(line[4])
-                              )
-            self.data.append( [part.poll, part.name] )
-            self.order.update( {part.name : part} )
-            self.len += 1
+
+        """Reads file and records data to self.data and self.order"""
+        with open(self.file_name, 'r') as read:
+            csv_read = csv.reader(read)
+            for line in csv_read:
+                if len(line) != 5:
+                    raise ValueError('Incorrect Format, Expected: name, #polled, #correct, #attempted, #excused')
+                
+                part = Participant(line[0], line[1], line[2], line[3], line[4])
+
+                self.rand_data.append( [part._poll, part._name] )
+                self.order.update( {part._name : part} )
+                self.len += 1
         
-        #Checks if theres no participants data
+        """Checks if theres no participants data"""
         if self.len < 1:
             raise ValueError('No Participants Data')
 
-        #Randomize and sort data
-        shuffle(self.data)
-        self.data.sort( key = lambda data: data[0] )
         return self
 
-    #Returns iterator
+
+    """Returns iterator"""
     def __iter__(self):
-        print("iter")
         return self
     
-    #Returns participants name
+    """#Returns participants name"""
     def __next__(self):
-        print("next")
-        #Exits operation
-        if self.i >= self.len:
-          raise StopIteration
-          
-        #Saves name and object inorder to m
-        self.name = self.data[self.i][1]
-        self.curr = self.order[self.name]
-        self.i += 1
-        return self.name
+        """Exits operation"""
+        if not self.loop:
+            raise StopIteration
 
-    #Increments total # of complete iterations
+        """Randomize and sort data"""
+        if self.curr_idx >= self.len or self.curr_idx == 0:
+            shuffle(self.rand_data)
+            self.rand_data.sort( key = lambda data: data[0] )
+            self.curr_idx = 0
+          
+        """Saves name and participant inorder to change their data"""
+        self.curr_name = self.rand_data[self.curr_idx][1]
+        self.curr = self.order[self.curr_name]
+        self.curr_idx += 1
+        return self.curr_name
+
+
+    """Increments total # of complete iterations"""
     def _total(self):
         self.total += 1
     
-    #Records Changes to Participant Class
-    #Calls participant object
-    #------------------------------------
-    #Increments correct
+    """
+    Records Changes to Participant Class
+    Calls participant object
+    ------------------------------------
+    """
+    """Increments correct"""
     def correct(self):
         self._total()
         self.curr.correct()
     
-    #Increments attempted
+    """Increments attempted"""
     def attempted(self):
         self._total()
         self.curr.attempted()
     
-    #Increments excused
+    """Increments excused"""
     def excused(self):
         self._total()
         self.curr.excused()
     
-    #Increments polled
+    """Increments polled"""
     def missing(self):
         self._total()
         self.curr.missing()
     
-    #Stops iteration by making self.i infinite
+    """#Stops iteration by making self.loop False"""
     def stop(self):
-        self.i = float('inf')
+        self.loop = False
 
-    #Overwrite csv and closes file
+
+    """Overwrite csv and close file"""
     def __exit__ (self, type='', value='', traceback=''):
-        #Overwrite files
-        self.file.write("name, #polled, #correct, #attempted, #excused")
+        """Overwrite file"""
+        file_w = open(self.file_name, 'w')
         for i in self.order.values():
-          self.file.write( str(i) )
+          file_w.write( str(i) + ' \n' )
+        file_w.close()
 
-        # Print total Participants polled and closes file
+        """Print total Participants polled"""
         print(f"Total Participants Polled: {self.total}")
-        print("File Exited")
-        self.file.close()

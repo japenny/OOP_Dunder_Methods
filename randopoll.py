@@ -4,14 +4,16 @@ from subprocess import run
 
 parser = ArgumentParser(prog = "RandoPoll",
                     description = "What the program does")
-parser.add_argument("/home/jspenny/hw1/participants.csv")
+parser.add_argument("filename")
 
 args = parser.parse_args()
 
-#Main Function to call on participants using Poller Class
-#And change participant data
+"""
+Main Function to call on participants using Poller Class
+And change participant data
+"""
 def main():
-    with Poller("/home/jspenny/hw1/participants.csv") as poller:
+    with Poller(args.filename) as poller:
         for participant in poller:
             while True:
                 print("%s: (A)nswered (C)orrect (E)xcused (M)issing (Q)uit" % participant)
@@ -29,6 +31,7 @@ def main():
                     poller.stop()
                     break
                 elif command == "m":
+                    poller.missing()
                     break
                 print("Unknown response")         
 
