@@ -52,12 +52,34 @@ def mock_open(input_list):
 
     return Opener
 
-@pytest.mark.parametrize(
-    ['file_name', 'expected'],
-    [
-        ('participant.csv', None)
-    ]
-)
-def test_poller_enter_exit(file_name, expected):
+
+def test_poller_enter_exit():
+    mocker  = mock_open(["Isabelle,6,3,2,1", "Bobby,5,1,3,1", "Charles,5,2,2,1"])
+
+    # with Poller('test.txt', mocker) as poller:
+    #     for participant in poller:
+    #         while True:
+    #             print("%s: (A)nswered (C)orrect (E)xcused (M)issing (Q)uit" % participant)
+    #             command = input().lower()
+    #             if command == "a":
+    #                 poller.attempted()
+    #                 break
+    #             elif command == "c":
+    #                 poller.correct()
+    #                 break
+    #             elif command == "e":
+    #                 poller.excused()
+    #                 break
+    #             elif command == "q":
+    #                 poller.stop()
+    #                 break
+    #             elif command == "m":
+    #                 poller.missing()
+    #                 break
+    #             print("Unknown response")
+
+    assert mocker.result_to_write == 1 #mocker.result_to_write == 1 #"Isabelle,6,3,2,1\nBobby,5,1,3,1\nCharles,5,2,2,1"
+    
+test_poller_enter_exit()
 
 
