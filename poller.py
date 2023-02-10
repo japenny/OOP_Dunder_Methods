@@ -57,14 +57,12 @@ class Poller:
         self.order = dict()
 
         """Reads file and records data to self.data and self.order"""
-        self.file_rw = self.opener(self.file_name, 'r+')
-
         with self.opener(self.file_name, 'r') as read:
             csv_read = csv.reader(read)
             for line in csv_read:
                 if len(line) != 5:
                     raise ValueError('Incorrect Format, Expected: name, #polled, #correct, #attempted, #excused')
-                        
+                            
                 part = Participant(line[0], line[1], line[2], line[3], line[4])
 
                 self.rand_data.append( [part._poll, part._name] )
@@ -138,12 +136,10 @@ class Poller:
     """Overwrite csv and close file"""
     def __exit__ (self, type='', value='', traceback=''):
         """Overwrite file"""
-        # self.file_rw.seek(0)
-        # file_w = self.opener(self.file_name, 'w')
-        with self.opener(self.file_name, 'w'):
-            for i in self.order.values():
-                self.file_rw.write( str(i) + '\n' )
-        # self.file_rw.close()
+        with self.opener(self.file_name, 'w') as file_W:
+            file_W.write( "\n".join(str(i) for i in self.order.values()) )
+        # for i in self.order.values():
+        #     self.file_rw.write( str(i) )
 
         """Print total Participants polled"""
         print(f"Total Participants Polled: {self.total}")
